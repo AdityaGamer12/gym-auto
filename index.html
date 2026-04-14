@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Auto Gym Logger</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(to right,#83a4d4,#b6fbff);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  margin:0;
+}
+.card {
+  background:white;
+  padding:30px;
+  border-radius:15px;
+  text-align:center;
+  box-shadow:0 8px 25px rgba(0,0,0,0.2);
+}
+button {
+  padding:12px 20px;
+  border:none;
+  border-radius:10px;
+  background:#4caf50;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+}
+#status {
+  margin-top:15px;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>Auto Gym Logger</h2>
+  <p id="status">Checking login...</p>
+  <button onclick="login()">Login with Google</button>
+</div>
+
+<script>
+// 🔥 FIREBASE CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyDRW1GPugCtI_i1oqKNu4RbHDbnXACQ9SA",
+  authDomain: "abceddddd-a4e1c.firebaseapp.com",
+  projectId: "abceddddd-a4e1c",
+  storageBucket: "abceddddd-a4e1c.firebasestorage.app",
+  messagingSenderId: "311117400080",
+  appId: "1:311117400080:web:07cebce89714fc5f08e295",
+  measurementId: "G-LSWPE92JEW"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const statusText = document.getElementById("status");
+
+// ✅ AUTO LOG (NO LIMITS)
+function autoLogWorkout(user) {
+  if (!user) return;
+
+  statusText.innerText = "Logging workout...";
+
+  db.collection("workouts").add({
+    uid: user.uid,
+    name: user.displayName || "User",
+    type: "Gym",
+    minutes: 60,
+    dateTime: new Date().toLocaleString(),
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  })
+  .then(() => {
+    statusText.innerText = "✅ Workout Logged!";
+  })
+  .catch((error) => {
+    console.error(error);
+    statusText.innerText = "❌ Error: " + error.message;
+  });
+}
+
+// 🔐 LOGIN
+function login() {
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+}
+
+// 🔄 AUTH STATE
+auth.onAuthStateChanged(user => {
+  if (user) {
+    autoLogWorkout(user); // 🔥 runs EVERY time page loads
+  } else {
+    statusText.innerText = "Please login";
+  }
+});
+</script>
+
+</body>
+</html>

@@ -69,7 +69,17 @@ const db = firebase.firestore();
 
 const statusText = document.getElementById("status");
 
-// ✅ AUTO LOG (NO LIMITS)
+// ✅ SAME FORMAT FUNCTION (like your manual app)
+function formatDateTime(d){
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${dd}/${mm}/${yy} ${hh}:${mi}`;
+}
+
+// ✅ AUTO LOG (FIXED FORMAT)
 function autoLogWorkout(user) {
   if (!user) return;
 
@@ -80,7 +90,7 @@ function autoLogWorkout(user) {
     name: user.displayName || "User",
     type: "Gym",
     minutes: 60,
-    dateTime: new Date().toLocaleString(),
+    dateTime: formatDateTime(new Date()), // ✅ FIXED HERE
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   })
   .then(() => {
@@ -100,7 +110,7 @@ function login() {
 // 🔄 AUTH STATE
 auth.onAuthStateChanged(user => {
   if (user) {
-    autoLogWorkout(user); // 🔥 runs EVERY time page loads
+    autoLogWorkout(user); // 🔥 logs EVERY time page opens
   } else {
     statusText.innerText = "Please login";
   }
